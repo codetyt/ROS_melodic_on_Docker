@@ -1,6 +1,12 @@
 FROM ubuntu:18.04
 LABEL description="ROS melodic on Ubuntu:18"
 
+ARG username=user
+ARG wkdir=/home/work
+# ARG ros_master_uri=
+ARG ros_pkg=https://github.com/codetyt/for_net_test.git
+ARG dirname=for_net_test
+
 # apt-get update
 RUN apt-get update -qq \
   && apt-get install -y --no-install-recommends tzdata
@@ -12,9 +18,6 @@ ENV TZ=Asia/Tokyo
 RUN apt-get install -y --no-install-recommends sudo curl gnupg git vim lsb-release
 
 # add new user
-ARG username=user
-ARG wkdir=/home/work
-
 # echo "username:password" | chpasswd
 # root password is "root"
 
@@ -43,3 +46,10 @@ RUN source /opt/ros/melodic/setup.bash
 RUN sudo apt-get install -y --no-install-recommends \
     python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
 RUN sudo rosdep init && rosdep update
+
+# RUN echo "export ROS_MASTER_URI=http://${ros_master_uri}:11311/" >> ~/.bashrc
+# RUN echo "export ROS_IP=`hostname -I | cut -d' ' -f1`" >> ~/.bashrc
+RUN source ~/.bashrc
+RUN git clone ${ros_pkg}
+WORKDIR ${wkdir}/${dirname}
+RUN source devel/setup.bash && rm -rf ./build && catkin_make
